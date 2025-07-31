@@ -6,12 +6,12 @@ This repository contains curated Lean Six Sigma datasets and tools for training 
 
 ## 🚀 Project Overview
 
-This project focuses on creating high-quality, domain-specific datasets for training Small Language Models (3B-8B parameters) to become specialized Lean Six Sigma consultants. The datasets cover supply chain optimization, manufacturing processes, and business improvement methodologies following the DMAIC framework.
+This project focuses on creating high-quality, domain-specific datasets for training Small Language Models (3B-8B parameters) to become specialized Lean Six Sigma consultants. The datasets cover multiple industries including healthcare, e-commerce, manufacturing, energy & utilities, data center operations, and supply chain & logistics, all following the DMAIC framework with comprehensive coverage of modern business optimization challenges.
 
 ### Key Features
 
-- **102 aligned QnA and NER samples** covering diverse Lean Six Sigma scenarios
-- **Supply chain focus** with enhanced logistics and manufacturing coverage
+- **360 aligned QnA and NER samples** covering diverse Lean Six Sigma scenarios
+- **Multi-domain coverage** including Data Center Operations and Supply Chain & Logistics
 - **DMAIC methodology alignment** (Define, Measure, Analyze, Improve, Control)
 - **Ready-to-use upload scripts** for Hugging Face Datasets Hub
 - **Secure token management** with .env integration
@@ -20,18 +20,54 @@ This project focuses on creating high-quality, domain-specific datasets for trai
 ## 📊 Datasets
 
 ### QnA Dataset (`sixSigma_QnA_caseStudy_sample.json`)
-- **102 question-answer pairs** for instruction-following model fine-tuning
+- **360 question-answer pairs** for instruction-following model fine-tuning
 - Expert-level responses following DMAIC methodology
 - Real-world business scenarios and case studies
 - Alpaca format compatibility for training
 
 ### NER Dataset (`sixSigma_NER_caseStudy_sample.json`)
-- **102 Named Entity Recognition samples** for entity extraction
+- **360 Named Entity Recognition samples** for entity extraction
 - DMAIC phase categorization of Lean Six Sigma tools and methodologies
-- Aligned with QnA dataset for comprehensive training
+- Perfect alignment with QnA dataset for comprehensive training
 - Supports both token classification and generative NER approaches
 
 ### Coverage Areas
+
+#### Healthcare Operations
+- Patient flow optimization
+- Medical process improvement
+- Quality metrics enhancement
+- Care delivery efficiency
+
+#### E-commerce Operations
+- Customer experience optimization
+- Order fulfillment enhancement
+- Digital platform performance
+- Conversion rate improvement
+
+#### Manufacturing Operations
+- Production line optimization
+- Quality control enhancement
+- Efficiency improvement
+- Waste reduction strategies
+
+#### Energy & Utilities
+- Grid reliability optimization
+- Energy efficiency enhancement
+- Resource management improvement
+- Infrastructure optimization
+
+#### Data Center Operations
+- Infrastructure performance optimization
+- Cloud migration and hybrid operations
+- Container platform and database optimization
+- AI/ML workload management
+- Edge computing deployment
+- Network performance enhancement
+- Security and compliance optimization
+- Automation and change management
+- Environmental and power systems optimization
+- Virtualization and storage efficiency
 
 #### Supply Chain & Logistics
 - Material handling optimization
@@ -43,22 +79,20 @@ This project focuses on creating high-quality, domain-specific datasets for trai
 - Last-mile delivery enhancement
 - Route optimization
 - Order fulfillment efficiency
-
-#### Quality & Process Improvement
-- Cycle time reduction
-- Flow optimization
-- Supplier quality management
-- Demand forecasting accuracy
-- Procurement efficiency
-- Distribution optimization
-- Warehouse productivity
-- Inventory management
-- Freight optimization
+- Procurement and supplier management
+- Inventory and warehouse optimization
+- Demand planning and forecasting
+- Quality and risk management
+- Sustainability and collaboration
+- Performance analytics and network design
+- Omnichannel fulfillment
+- Trade compliance and finance optimization
 
 #### Specialized Areas
-- Sustainable supply chain practices
-- Trade compliance optimization
-- Supply chain resilience building
+- Digital transformation initiatives
+- Customer service excellence
+- Cost management optimization
+- Partnership and collaboration enhancement
 
 ## 🛠️ Setup & Installation
 
@@ -196,10 +230,10 @@ formatted_dataset = qna_dataset.map(lambda x: {"text": format_alpaca_prompt(x)})
 
 | Model | Parameters | VRAM | Training Time | Use Case |
 |-------|------------|------|---------------|----------|
-| **Llama 3.2 3B** | 3B | 6GB | 2-3 hours | Balanced performance/efficiency |
-| **Mistral 7B** | 7B | 16GB | 1.5-2 hours | Excellent instruction following |
-| **Qwen 2.5 7B** | 7B | 16GB | 1-1.5 hours | Strong reasoning capabilities |
-| **Gemma 7B** | 7B | 16GB | 2-2.5 hours | Google's instruction-tuned model |
+| **Llama 3.2 3B** | 3B | 6GB | 3-4 hours | Balanced performance/efficiency |
+| **Mistral 7B** | 7B | 16GB | 2-3 hours | Excellent instruction following |
+| **Qwen 2.5 7B** | 7B | 16GB | 1.5-2 hours | Strong reasoning capabilities |
+| **Gemma 7B** | 7B | 16GB | 2.5-3 hours | Google's instruction-tuned model |
 
 ### Training Frameworks
 - **Unsloth**: Parameter-efficient fine-tuning with LoRA/QLoRA
@@ -225,14 +259,17 @@ formatted_dataset = qna_dataset.map(lambda x: {"text": format_alpaca_prompt(x)})
 ### Dataset Quality
 - **Expert validation**: All responses follow proper DMAIC methodology
 - **Real-world scenarios**: Based on actual business challenges
-- **Comprehensive coverage**: 20+ sub-domains across supply chain and quality
-- **Alignment**: Perfect ID and structure alignment between QnA and NER datasets
+- **Comprehensive coverage**: 50+ specialized areas across 6 major domains
+- **Perfect alignment**: Complete ID and structure alignment between QnA and NER datasets (360 samples each)
+- **Domain balance**: Strategic coverage of high-value business areas
+- **Technical depth**: Advanced techniques including AI/ML, automation, and digital transformation
 
 ### Training Performance
 - **Parameter efficiency**: Optimized for LoRA/QLoRA training
-- **Data efficiency**: 102 samples suitable for few-shot learning
-- **Domain specificity**: Focused on business process improvement
+- **Data efficiency**: 360 samples provide comprehensive domain coverage for fine-tuning
+- **Domain specificity**: Focused on business process improvement across multiple industries
 - **Practical application**: Ready for production consulting scenarios
+- **Scalability**: Datasets sized for efficient training while maintaining quality
 
 ## 🤝 Contributing
 
@@ -262,7 +299,9 @@ If you use these datasets in your research or projects, please cite:
   author={Clarence Wong},
   year={2025},
   url={https://github.com/cw18/ai-master-black-belt},
-  note={QnA and NER datasets for business process improvement}
+  note={360 QnA and NER samples covering 6 major domains for business process improvement},
+  samples={360},
+  domains={healthcare, ecommerce, manufacturing, energy_utilities, data_center_operations, supply_chain_logistics}
 }
 ```
 

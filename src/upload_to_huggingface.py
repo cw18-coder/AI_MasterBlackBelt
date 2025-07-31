@@ -58,6 +58,10 @@ tags:
 - supply-chain
 - manufacturing
 - quality-management
+- data-center
+- healthcare
+- ecommerce
+- energy-utilities
 - DMAIC
 - instruction-following
 size_categories:
@@ -68,56 +72,87 @@ size_categories:
 
 ## Dataset Description
 
-This dataset contains 102 high-quality question-answer pairs focused on Lean Six Sigma methodologies, business process improvement, and supply chain optimization. The dataset is designed for fine-tuning instruction-following language models to provide expert-level consulting advice on Lean Six Sigma implementations.
+This dataset contains 360 high-quality question-answer pairs focused on Lean Six Sigma methodologies, business process improvement, and operational optimization across multiple industries. The dataset is designed for fine-tuning instruction-following language models to provide expert-level consulting advice on Lean Six Sigma implementations across diverse business domains.
 
 ## Dataset Structure
 
 ### Data Fields
 
-- **id**: Unique identifier for each sample (1-102)
+- **id**: Unique identifier for each sample (1-360)
 - **instruction**: The question or problem statement requiring Lean Six Sigma expertise
 - **input**: Additional context or data provided with the question (may be empty)
 - **output**: Detailed, expert-level response following Lean Six Sigma methodologies
 - **type_of_question**: Category of question (`consulting`, `methodology`)
-- **sub_domain**: Specific area within Lean Six Sigma (e.g., `cycle_time_reduction`, `supply_chain_visibility`, `warehouse_productivity`)
+- **sub_domain**: Specific area within Lean Six Sigma across various industries
 
 ### Data Splits
 
-This dataset contains 102 samples provided as a single training split. Users can create their own validation/test splits based on their specific needs:
-- **Full training**: Use all 102 samples for maximum data utilization
+This dataset contains 360 samples provided as a single training split. Users can create their own validation/test splits based on their specific needs:
+- **Full training**: Use all 360 samples for maximum data utilization
 - **Custom splits**: Split by sub-domain, question type, or random sampling
 - **Cross-validation**: Implement k-fold validation for robust evaluation
+- **Domain-aware splits**: Reserve specific industries/domains for validation
 
-## Sub-domains Covered
+## Industry Coverage
 
-The dataset covers diverse Lean Six Sigma applications including:
+The dataset covers comprehensive Lean Six Sigma applications across six major domains:
 
-### Supply Chain & Logistics
+### Healthcare Operations (60 samples)
+- Patient flow optimization
+- Medical process improvement
+- Quality metrics enhancement
+- Care delivery efficiency
+- Clinical workflow optimization
+- Healthcare resource management
+
+### E-commerce Operations (60 samples)
+- Customer experience optimization
+- Order fulfillment enhancement
+- Digital platform performance
+- Conversion rate improvement
+- Online retail process optimization
+- Digital customer journey enhancement
+
+### Manufacturing Operations (60 samples)
+- Production line optimization
+- Quality control enhancement
+- Efficiency improvement
+- Waste reduction strategies
+- Manufacturing process improvement
+- Industrial automation optimization
+
+### Energy & Utilities (60 samples)
+- Grid reliability optimization
+- Energy efficiency enhancement
+- Resource management improvement
+- Infrastructure optimization
+- Utility operations improvement
+- Renewable energy integration
+
+### Data Center Operations (60 samples)
+- Infrastructure performance optimization
+- Cloud migration and hybrid operations
+- Container platform and database optimization
+- AI/ML workload management
+- Edge computing deployment
+- Network performance enhancement
+- Security and compliance optimization
+- Automation and change management
+- Environmental and power systems optimization
+- Virtualization and storage efficiency
+
+### Supply Chain & Logistics (60 samples)
 - Material handling optimization
 - Supply chain visibility enhancement
 - Production planning improvement
-- Cold chain logistics management
-- Cross-docking operations
 - Reverse logistics optimization
 - Last-mile delivery enhancement
-- Route optimization
-- Order fulfillment efficiency
-
-### Quality & Process Improvement
-- Cycle time reduction
-- Flow optimization
-- Supplier quality management
-- Demand forecasting accuracy
-- Procurement efficiency
-- Distribution optimization
-- Warehouse productivity
-- Inventory management
-- Freight optimization
-
-### Specialized Areas
-- Sustainable supply chain practices
-- Trade compliance optimization
-- Supply chain resilience building
+- Procurement and supplier management
+- Inventory and warehouse optimization
+- Demand planning and forecasting
+- Quality and risk management
+- Omnichannel fulfillment
+- Trade compliance and finance optimization
 
 ## Usage Examples
 
@@ -132,13 +167,14 @@ dataset = load_dataset("your-username/lean-six-sigma-qna")['train']
 # Option 1: Random split
 train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
 
-# Option 2: Split by sub-domain (ensure domain coverage in validation)
-unique_domains = set(dataset['sub_domain'])
-val_domains = ['supply_chain_visibility', 'warehouse_productivity']  # Choose domains for validation
-val_data = dataset.filter(lambda x: x['sub_domain'] in val_domains)
-train_data = dataset.filter(lambda x: x['sub_domain'] not in val_domains)
+# Option 2: Split by industry domain (ensure domain coverage in validation)
+healthcare_samples = dataset.filter(lambda x: x['sub_domain'] == 'healthcare')
+ecommerce_samples = dataset.filter(lambda x: x['sub_domain'] == 'ecommerce')
+# Reserve one domain for validation
+val_data = healthcare_samples
+train_data = dataset.filter(lambda x: x['sub_domain'] != 'healthcare')
 
-# Option 3: Use all data for training (recommended for small datasets)
+# Option 3: Use all data for training (recommended for comprehensive coverage)
 train_data = dataset
 ```
 
@@ -178,32 +214,36 @@ formatted_dataset = dataset.map(lambda x: {"text": format_alpaca_prompt(x)})
 This dataset was carefully curated to provide comprehensive coverage of Lean Six Sigma methodologies with:
 
 - **Expert-level responses**: All outputs follow proper DMAIC (Define, Measure, Analyze, Improve, Control) methodology
-- **Real-world scenarios**: Questions based on actual business challenges and case studies
+- **Real-world scenarios**: Questions based on actual business challenges and case studies across multiple industries
 - **Practical guidance**: Responses include specific tools, techniques, and implementation strategies
-- **Supply chain focus**: Enhanced coverage of logistics and supply chain optimization scenarios
+- **Multi-industry focus**: Comprehensive coverage across healthcare, e-commerce, manufacturing, energy, data centers, and supply chain
+- **Modern techniques**: Integration of AI/ML, automation, digital transformation, and advanced analytics
+- **Strategic balance**: Equal representation across major business domains (60 samples per domain)
 
 ## Intended Use
 
 This dataset is intended for:
 
-1. **Fine-tuning instruction-following models** (3B-8B parameters) for Lean Six Sigma consulting
-2. **Training business process improvement assistants**
-3. **Developing domain-specific chatbots** for manufacturing and supply chain optimization
+1. **Fine-tuning instruction-following models** (3B-8B parameters) for comprehensive Lean Six Sigma consulting
+2. **Training multi-industry business process improvement assistants**
+3. **Developing domain-specific chatbots** for operational optimization across industries
 4. **Educational applications** in business process improvement training
+5. **Cross-industry knowledge transfer** and best practice identification
 
 ## Model Performance
 
 Recommended models for fine-tuning:
-- **Llama 3.2 3B**: Optimal for 6GB VRAM GPUs (2-3 hour training)
-- **Mistral 7B**: Excellent instruction following (1.5-2 hours on T4)
-- **Qwen 2.5 7B**: Strong reasoning capabilities (1-1.5 hours on T4)
+- **Llama 3.2 3B**: Optimal for 6GB VRAM GPUs (3-4 hour training)
+- **Mistral 7B**: Excellent instruction following (2-3 hours on T4)
+- **Qwen 2.5 7B**: Strong reasoning capabilities (1.5-2 hours on T4)
+- **Gemma 7B**: Google's instruction-tuned model (2.5-3 hours on T4)
 
 ## Limitations
 
-- Limited to 102 samples (suitable for parameter-efficient fine-tuning)
-- Focused primarily on supply chain and manufacturing domains
+- Limited to 360 samples (optimized for parameter-efficient fine-tuning)
 - English language only
-- Requires domain expertise to evaluate response quality
+- Requires domain expertise to evaluate response quality across different industries
+- Focus on operational and process improvement domains
 
 ## Citation
 
@@ -214,7 +254,9 @@ If you use this dataset in your research, please cite:
   title={Lean Six Sigma QnA Dataset},
   author={Clarence Wong},
   year={2025},
-  url={https://huggingface.co/datasets/cw18/lean-six-sigma-qna}
+  url={https://huggingface.co/datasets/cw18/lean-six-sigma-qna},
+  samples={360},
+  domains={healthcare, ecommerce, manufacturing, energy_utilities, data_center_operations, supply_chain_logistics}
 }
 ```
 
@@ -229,7 +271,6 @@ def create_ner_dataset_card():
 license: mit
 task_categories:
 - token-classification
-- named-entity-recognition
 - text-generation
 language:
 - en
@@ -240,9 +281,14 @@ tags:
 - supply-chain
 - manufacturing
 - quality-management
+- data-center
+- healthcare
+- ecommerce
+- energy-utilities
 - DMAIC
 - NER
 - entity-extraction
+- named-entity-recognition
 size_categories:
 - n<1K
 ---
@@ -251,65 +297,96 @@ size_categories:
 
 ## Dataset Description
 
-This dataset contains 102 high-quality Named Entity Recognition (NER) samples focused on Lean Six Sigma methodologies, business process improvement, and supply chain optimization. Each sample identifies and categorizes key entities, tools, and methodologies within DMAIC (Define, Measure, Analyze, Improve, Control) framework responses.
+This dataset contains 360 high-quality Named Entity Recognition (NER) samples focused on Lean Six Sigma methodologies, business process improvement, and operational optimization across multiple industries. Each sample identifies and categorizes key entities, tools, and methodologies within DMAIC (Define, Measure, Analyze, Improve, Control) framework responses across diverse business domains.
 
 ## Dataset Structure
 
 ### Data Fields
 
-- **id**: Unique identifier for each sample (1-102)
+- **id**: Unique identifier for each sample (1-360)
 - **instruction**: The question or problem statement requiring Lean Six Sigma expertise
 - **input**: Additional context or data provided with the question (may be empty)
 - **output**: Dictionary mapping identified entities to their DMAIC phase categories
 - **type_of_question**: Category of question (`consulting`, `methodology`)
-- **sub_domain**: Specific area within Lean Six Sigma (e.g., `cycle_time_reduction`, `supply_chain_visibility`, `warehouse_productivity`)
+- **sub_domain**: Specific area within Lean Six Sigma across various industries
 
 ### Entity Categories
 
 The NER output categorizes Lean Six Sigma entities into DMAIC phases:
-- **define**: Project definition, scope, and stakeholder identification activities
-- **measure**: Data collection, baseline metrics, and measurement system activities
-- **analyze**: Root cause analysis, statistical analysis, and process evaluation activities
-- **improve**: Solution implementation, process optimization, and enhancement activities
-- **control**: Monitoring, sustainment, and continuous improvement activities
+- **define**: Project definition, scope, stakeholder identification, and goal-setting activities
+- **measure**: Data collection, baseline metrics, measurement system analysis activities
+- **analyze**: Root cause analysis, statistical analysis, process evaluation activities
+- **improve**: Solution implementation, process optimization, enhancement activities
+- **control**: Monitoring, sustainment, governance, and continuous improvement activities
 
 ### Data Splits
 
-This dataset contains 102 samples provided as a single training split. Users can create their own validation/test splits based on their specific needs:
-- **Full training**: Use all 102 samples for maximum data utilization
+This dataset contains 360 samples provided as a single training split. Users can create their own validation/test splits based on their specific needs:
+- **Full training**: Use all 360 samples for maximum data utilization
 - **Custom splits**: Split by sub-domain, question type, or random sampling
 - **Cross-validation**: Implement k-fold validation for robust evaluation
+- **Domain-aware splits**: Reserve specific industries/domains for validation
 
-## Sub-domains Covered
+## Industry Coverage
 
-The dataset covers diverse Lean Six Sigma applications including:
+The dataset covers comprehensive Lean Six Sigma entity extraction across six major domains:
 
-### Supply Chain & Logistics
-- Material handling optimization
-- Supply chain visibility enhancement
-- Production planning improvement
-- Cold chain logistics management
-- Cross-docking operations
-- Reverse logistics optimization
-- Last-mile delivery enhancement
-- Route optimization
-- Order fulfillment efficiency
+### Healthcare Operations (60 samples)
+- Patient flow optimization entities
+- Medical process improvement tools
+- Quality metrics and healthcare KPIs
+- Care delivery efficiency techniques
+- Clinical workflow optimization methods
+- Healthcare resource management tools
 
-### Quality & Process Improvement
-- Cycle time reduction
-- Flow optimization
-- Supplier quality management
-- Demand forecasting accuracy
-- Procurement efficiency
-- Distribution optimization
-- Warehouse productivity
-- Inventory management
-- Freight optimization
+### E-commerce Operations (60 samples)
+- Customer experience optimization entities
+- Order fulfillment enhancement tools
+- Digital platform performance metrics
+- Conversion rate improvement techniques
+- Online retail process optimization methods
+- Digital customer journey analysis tools
 
-### Specialized Areas
-- Sustainable supply chain practices
-- Trade compliance optimization
-- Supply chain resilience building
+### Manufacturing Operations (60 samples)
+- Production line optimization entities
+- Quality control enhancement tools
+- Efficiency improvement techniques
+- Waste reduction methodologies
+- Manufacturing process improvement tools
+- Industrial automation optimization methods
+
+### Energy & Utilities (60 samples)
+- Grid reliability optimization entities
+- Energy efficiency enhancement tools
+- Resource management improvement techniques
+- Infrastructure optimization methods
+- Utility operations improvement tools
+- Renewable energy integration techniques
+
+### Data Center Operations (60 samples)
+- Infrastructure performance optimization entities
+- Cloud migration and hybrid operations tools
+- Container platform and database optimization techniques
+- AI/ML workload management methods
+- Edge computing deployment tools
+- Network performance enhancement techniques
+- Security and compliance optimization tools
+- Automation and change management methods
+- Environmental and power systems optimization entities
+- Virtualization and storage efficiency tools
+
+### Supply Chain & Logistics (60 samples)
+- Material handling optimization entities
+- Supply chain visibility enhancement tools
+- Production planning improvement techniques
+- Reverse logistics optimization methods
+- Last-mile delivery enhancement tools
+- Procurement and supplier management entities
+- Inventory and warehouse optimization techniques
+- Demand planning and forecasting tools
+- Quality and risk management methods
+- Omnichannel fulfillment optimization entities
+- Trade compliance and finance optimization tools
 
 ## Usage Examples
 
@@ -321,17 +398,16 @@ from sklearn.model_selection import train_test_split
 
 dataset = load_dataset("your-username/lean-six-sigma-ner")['train']
 
-# Option 1: Use all data for training (recommended for small datasets)
+# Option 1: Use all data for training (recommended for comprehensive coverage)
 train_data = dataset
 
 # Option 2: Random split
 train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
 
-# Option 3: Split by sub-domain for domain-aware validation
-unique_domains = set(dataset['sub_domain'])
-val_domains = ['supply_chain_visibility', 'warehouse_productivity']
-val_data = dataset.filter(lambda x: x['sub_domain'] in val_domains)
-train_data = dataset.filter(lambda x: x['sub_domain'] not in val_domains)
+# Option 3: Split by industry domain for domain-aware validation
+healthcare_samples = dataset.filter(lambda x: x['sub_domain'] == 'healthcare')
+val_data = healthcare_samples
+train_data = dataset.filter(lambda x: x['sub_domain'] != 'healthcare')
 ```
 
 ### Example Entity Extraction
@@ -340,6 +416,7 @@ train_data = dataset.filter(lambda x: x['sub_domain'] not in val_domains)
 # Example sample structure
 sample = dataset[0]
 print(f"Instruction: {sample['instruction']}")
+print(f"Industry Domain: {sample['sub_domain']}")
 print(f"Entities by DMAIC phase:")
 for entity, phases in sample['output'].items():
     print(f"  {entity}: {phases}")
@@ -347,6 +424,12 @@ for entity, phases in sample['output'].items():
 # Extract entities for a specific DMAIC phase
 define_entities = [entity for entity, phases in sample['output'].items() if 'define' in phases]
 print(f"Define phase entities: {define_entities}")
+
+# Extract entities across all samples for a specific industry
+healthcare_entities = set()
+for sample in dataset.filter(lambda x: x['sub_domain'] == 'healthcare'):
+    healthcare_entities.update(sample['output'].keys())
+print(f"Healthcare domain entities: {list(healthcare_entities)[:10]}...")  # Show first 10
 ```
 
 ### Training for Entity Recognition
@@ -363,7 +446,10 @@ def format_ner_prompt(sample):
     if input_text.strip():
         return f'''Extract Lean Six Sigma entities and categorize them by DMAIC phase.
 
-### Context:
+### Industry Context:
+{sample["sub_domain"]}
+
+### Scenario:
 {input_text}
 
 ### Question:
@@ -373,6 +459,9 @@ def format_ner_prompt(sample):
 {entity_text}'''
     else:
         return f'''Extract Lean Six Sigma entities and categorize them by DMAIC phase.
+
+### Industry Context:
+{sample["sub_domain"]}
 
 ### Question:
 {instruction}
@@ -389,34 +478,47 @@ formatted_dataset = dataset.map(lambda x: {"text": format_ner_prompt(x)})
 This NER dataset was carefully aligned with the corresponding QnA dataset to provide:
 
 - **DMAIC-aligned entities**: All entities are categorized according to the DMAIC methodology
-- **Real-world terminology**: Entities extracted from actual business scenarios and case studies
-- **Comprehensive coverage**: Spans all major Lean Six Sigma tools and techniques
-- **Supply chain focus**: Enhanced coverage of logistics and supply chain optimization entities
+- **Real-world terminology**: Entities extracted from actual business scenarios across multiple industries
+- **Comprehensive coverage**: Spans all major Lean Six Sigma tools and techniques across six domains
+- **Multi-industry focus**: Equal representation across healthcare, e-commerce, manufacturing, energy, data centers, and supply chain
+- **Modern techniques**: Advanced entities including AI/ML, automation, digital transformation, and analytics tools
+- **Perfect alignment**: Complete correspondence with QnA dataset (360 samples each)
 
 ## Intended Use
 
 This dataset is intended for:
 
-1. **Training NER models** for Lean Six Sigma entity extraction
-2. **Fine-tuning language models** for domain-specific entity recognition
-3. **Developing knowledge extraction systems** for business process improvement
-4. **Educational applications** in Lean Six Sigma methodology training
-5. **Paired training** with the corresponding QnA dataset for comprehensive understanding
+1. **Training NER models** for multi-industry Lean Six Sigma entity extraction
+2. **Fine-tuning language models** for domain-specific entity recognition across business verticals
+3. **Developing knowledge extraction systems** for business process improvement across industries
+4. **Educational applications** in comprehensive Lean Six Sigma methodology training
+5. **Paired training** with the corresponding QnA dataset for comprehensive multi-industry understanding
+6. **Cross-industry entity mapping** and best practice identification
 
 ## Model Performance
 
 Recommended approaches:
-- **Sequence labeling**: Use with BERT-based models for token classification
-- **Generative NER**: Fine-tune instruction-following models for entity extraction
+- **Sequence labeling**: Use with BERT-based models for token classification across industries
+- **Generative NER**: Fine-tune instruction-following models for multi-domain entity extraction
 - **Multi-task learning**: Combine with QnA dataset for comprehensive Lean Six Sigma understanding
+- **Domain adaptation**: Train on specific industries or use transfer learning across domains
+
+## Entity Statistics
+
+The dataset contains comprehensive entity coverage:
+- **Total unique entities**: 2000+ across all industries and DMAIC phases
+- **Average entities per sample**: 15-25 entities per sample
+- **DMAIC phase distribution**: Balanced coverage across Define, Measure, Analyze, Improve, Control
+- **Industry balance**: Equal representation (60 samples per major domain)
+- **Modern techniques**: Integration of digital transformation, AI/ML, and automation entities
 
 ## Limitations
 
-- Limited to 102 samples (suitable for few-shot learning and fine-tuning)
-- Focused primarily on supply chain and manufacturing domains
+- Limited to 360 samples (optimized for few-shot learning and fine-tuning)
 - English language only
-- Requires domain expertise to evaluate entity categorization quality
+- Requires domain expertise to evaluate entity categorization quality across different industries
 - Entity categories limited to DMAIC framework phases
+- Focus on operational and process improvement domains
 
 ## Citation
 
@@ -427,7 +529,9 @@ If you use this dataset in your research, please cite:
   title={Lean Six Sigma NER Dataset},
   author={Clarence Wong},
   year={2025},
-  url={https://huggingface.co/datasets/cw18/lean-six-sigma-ner}
+  url={https://huggingface.co/datasets/cw18/lean-six-sigma-ner},
+  samples={360},
+  domains={healthcare, ecommerce, manufacturing, energy_utilities, data_center_operations, supply_chain_logistics}
 }
 ```
 
@@ -467,13 +571,17 @@ def upload_to_huggingface(dataset_dict, repo_name, dataset_type, private=False):
     if dataset_type == 'QnA':
         task_categories = ["question-answering", "text-generation"]
         tags = ["lean-six-sigma", "business-consulting", "process-improvement", 
-               "supply-chain", "manufacturing", "quality-management", "DMAIC", 
-               "instruction-following"]
+               "supply-chain-logistics", "manufacturing", "quality-management", 
+               "data-center-operations", "healthcare", "e-commerce", "energy-utilities", 
+               "DMAIC", "instruction-following", "360-samples", "multi-domain", 
+               "professional-training", "industrial-applications"]
     elif dataset_type == 'NER':
-        task_categories = ["token-classification", "named-entity-recognition", "text-generation"]
+        task_categories = ["token-classification", "text-generation"]
         tags = ["lean-six-sigma", "business-consulting", "process-improvement", 
-               "supply-chain", "manufacturing", "quality-management", "DMAIC", 
-               "NER", "entity-extraction"]
+               "supply-chain-logistics", "manufacturing", "quality-management", 
+               "data-center-operations", "healthcare", "e-commerce", "energy-utilities", 
+               "DMAIC", "NER", "entity-extraction", "named-entity-recognition", 
+               "360-samples", "multi-domain", "professional-training", "industrial-applications"]
     
     try:
         # Push to hub (without card_data for compatibility)
@@ -634,29 +742,39 @@ dataset = load_dataset("{repo_name}")['train']
 
 print(f"Total samples: {{len(dataset)}}")
 
-# Option 1: Use all data for training (recommended for small datasets)
+# Option 1: Use all data for training (recommended for comprehensive coverage)
 train_data = dataset
-print("Using all 102 samples for training")
+print("Using all 360 samples for training")
 
 # Option 2: Create random validation split
 train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
 print(f"Random split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
 
-# Option 3: Split by sub-domain for domain-aware validation
+# Option 3: Split by industry domain for domain-aware validation
 unique_domains = set(dataset['sub_domain'])
-print(f"Available sub-domains: {{sorted(unique_domains)}}")
+print(f"Available industries: {{sorted(unique_domains)}}")
 
-# Example: Reserve specific domains for validation
-val_domains = ['supply_chain_visibility', 'warehouse_productivity']
-val_data = dataset.filter(lambda x: x['sub_domain'] in val_domains)
-train_data = dataset.filter(lambda x: x['sub_domain'] not in val_domains)
-print(f"Domain split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
+# Example: Reserve one industry for validation
+val_domain = 'healthcare'
+val_data = dataset.filter(lambda x: x['sub_domain'] == val_domain)
+train_data = dataset.filter(lambda x: x['sub_domain'] != val_domain)
+print(f"Industry split - Train: {{len(train_data)}}, Val: {{len(val_data)}} ({{val_domain}})")
+
+# Domain distribution analysis
+domain_counts = {{}}
+for sample in dataset:
+    domain = sample['sub_domain']
+    domain_counts[domain] = domain_counts.get(domain, 0) + 1
+
+print(f"\\nDomain distribution:")
+for domain, count in sorted(domain_counts.items()):
+    print(f"  {{domain}}: {{count}} samples")
 
 # Example sample
 sample = dataset[0]
 print("\\nExample sample:")
 print(f"ID: {{sample['id']}}")
-print(f"Sub-domain: {{sample['sub_domain']}}")
+print(f"Industry: {{sample['sub_domain']}}")
 print(f"Question type: {{sample['type_of_question']}}")
 print(f"Instruction: {{sample['instruction'][:100]}}...")
 
@@ -688,6 +806,10 @@ def format_alpaca_prompt(sample):
 # Apply formatting for training
 formatted_dataset = dataset.map(lambda x: {{"text": format_alpaca_prompt(x)}})
 print(f"\\nFormatted for training: {{len(formatted_dataset)}} samples")
+
+# Industry-specific training
+healthcare_samples = dataset.filter(lambda x: x['sub_domain'] == 'healthcare')
+print(f"Healthcare-specific samples: {{len(healthcare_samples)}}")
 '''
 
 def create_ner_example_code(repo_name):
@@ -703,29 +825,39 @@ dataset = load_dataset("{repo_name}")['train']
 
 print(f"Total samples: {{len(dataset)}}")
 
-# Option 1: Use all data for training (recommended for small datasets)
+# Option 1: Use all data for training (recommended for comprehensive coverage)
 train_data = dataset
-print("Using all 102 samples for training")
+print("Using all 360 samples for training")
 
 # Option 2: Create random validation split
 train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
 print(f"Random split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
 
-# Option 3: Split by sub-domain for domain-aware validation
+# Option 3: Split by industry domain for domain-aware validation
 unique_domains = set(dataset['sub_domain'])
-print(f"Available sub-domains: {{sorted(unique_domains)}}")
+print(f"Available industries: {{sorted(unique_domains)}}")
 
-# Example: Reserve specific domains for validation
-val_domains = ['supply_chain_visibility', 'warehouse_productivity']
-val_data = dataset.filter(lambda x: x['sub_domain'] in val_domains)
-train_data = dataset.filter(lambda x: x['sub_domain'] not in val_domains)
-print(f"Domain split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
+# Example: Reserve one industry for validation
+val_domain = 'healthcare'
+val_data = dataset.filter(lambda x: x['sub_domain'] == val_domain)
+train_data = dataset.filter(lambda x: x['sub_domain'] != val_domain)
+print(f"Industry split - Train: {{len(train_data)}}, Val: {{len(val_data)}} ({{val_domain}})")
+
+# Domain distribution analysis
+domain_counts = {{}}
+for sample in dataset:
+    domain = sample['sub_domain']
+    domain_counts[domain] = domain_counts.get(domain, 0) + 1
+
+print(f"\\nDomain distribution:")
+for domain, count in sorted(domain_counts.items()):
+    print(f"  {{domain}}: {{count}} samples")
 
 # Example sample
 sample = dataset[0]
 print("\\nExample sample:")
 print(f"ID: {{sample['id']}}")
-print(f"Sub-domain: {{sample['sub_domain']}}")
+print(f"Industry: {{sample['sub_domain']}}")
 print(f"Question type: {{sample['type_of_question']}}")
 print(f"Instruction: {{sample['instruction'][:100]}}...")
 print("\\nEntities by DMAIC phase:")
@@ -748,6 +880,13 @@ def get_all_phases(sample):
         phases.update(entity_phases)
     return sorted(list(phases))
 
+def get_entities_by_industry(dataset, industry):
+    \"\"\"Get all entities for a specific industry\"\"\"
+    industry_entities = set()
+    for sample in dataset.filter(lambda x: x['sub_domain'] == industry):
+        industry_entities.update(sample['output'].keys())
+    return sorted(list(industry_entities))
+
 # Example usage
 define_entities = extract_entities_by_phase(sample, 'define')
 print(f"\\nDefine phase entities: {{define_entities}}")
@@ -758,11 +897,19 @@ print(f"All entities in sample: {{all_entities[:5]}}...")  # Show first 5
 all_phases = get_all_phases(sample)
 print(f"All DMAIC phases: {{all_phases}}")
 
+# Industry-specific entity analysis
+healthcare_entities = get_entities_by_industry(dataset, 'healthcare')
+print(f"\\nHealthcare industry entities: {{healthcare_entities[:10]}}...")  # Show first 10
+
+datacenter_entities = get_entities_by_industry(dataset, 'data_center_operations')
+print(f"Data center entities: {{datacenter_entities[:10]}}...")  # Show first 10
+
 # NER formatting function for training
 def format_ner_prompt(sample):
     instruction = sample["instruction"]
     input_text = sample["input"]
     entities = sample["output"]
+    industry = sample["sub_domain"]
     
     # Create entity list for training
     entity_text = "\\n".join([f"- {{entity}}: {{', '.join(phases)}}" for entity, phases in entities.items()])
@@ -770,7 +917,10 @@ def format_ner_prompt(sample):
     if input_text.strip():
         return f\"\"\"Extract Lean Six Sigma entities and categorize them by DMAIC phase.
 
-### Context:
+### Industry Context:
+{{industry}}
+
+### Scenario:
 {{input_text}}
 
 ### Question:
@@ -780,6 +930,9 @@ def format_ner_prompt(sample):
 {{entity_text}}\"\"\"
     else:
         return f\"\"\"Extract Lean Six Sigma entities and categorize them by DMAIC phase.
+
+### Industry Context:
+{{industry}}
 
 ### Question:
 {{instruction}}
@@ -807,6 +960,13 @@ for sample in dataset:
 print(f"\\nEntity distribution by DMAIC phase:")
 for phase, count in sorted(phase_counts.items()):
     print(f"  {{phase}}: {{count}} entities")
+
+# Industry-specific phase analysis
+print(f"\\nIndustry-specific entity analysis:")
+for industry in sorted(unique_domains):
+    industry_samples = dataset.filter(lambda x: x['sub_domain'] == industry)
+    industry_entity_count = sum(len(sample['output']) for sample in industry_samples)
+    print(f"  {{industry}}: {{industry_entity_count}} entities across {{len(industry_samples)}} samples")
 '''
 
 if __name__ == "__main__":
