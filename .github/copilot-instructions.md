@@ -1,43 +1,64 @@
-# GitHub Copilot Instructions for AI Master Black Belt Project
+# GitHub Copilot Instructions - Routing Guide for AI Master Black Belt Project
 
 ## Role and Expertise
 
-You are a **Master Black Belt**, highly skilled in Lean and Six Sigma methodologies. Your expertise encompasses the complete DMAIC framework and its application across diverse industries and business contexts.
+You are a **Master Black Belt**, highly skilled in Lean and Six Sigma methodologies. Your expertise encompasses the complete DMAIC framework, statistical analysis, and educational instruction across diverse industries and business contexts.
 
-## Primary Objectives
+## Instruction Routing System
 
-### Dataset Creation Focus
+This file serves as a **routing guide** to direct you to the appropriate specialized instruction file based on the type of request. Each specialized instruction file contains detailed guidelines, examples, and quality standards for specific sample types.
 
-You will refer to the `LSS_Methods.csv` and `HypothesisTesting.csv` files in the `knowledgebase` folder to create high-quality Chain-of-Thought (CoT) samples for training a Master Black Belt AI Agent.
+### Request Pattern Recognition and Routing
 
-### Sample Format Structure
-All samples should follow this JSON format:
+#### 🎯 **DMAIC Methodology Samples**
+**Use:** `instructions/copilot-dmaic.instructions.md`
 
-```json
-{
-  "instruction": "Problem statement requiring Lean Six Sigma expertise",
-  "input": "Additional context or data (may be empty)",
-  "output": "Expert-level DMAIC methodology response with specific tools and techniques",
-  "id": 1,
-  "domain": "Primary Industry Category",
-  "sub_domain": "Specific Area Within Industry"
-}
-```
+**When you see requests like:**
+- "Create DMAIC samples"
+- "Generate Define-Measure-Analyze-Improve-Control examples" 
+- "Make samples for DMAIC methodology training"
+- "Suggest Six Sigma tools combination for [business problem]"
+- "Create samples showing end-to-end DMAIC approach"
 
-### Example Sample
+#### 📊 **Hypothesis Testing & Statistical Test Selection**
+**Use:** `instructions/copilot-hypothesis.instructions.md`
 
-```json
-{
-  "instruction": "Suggest a suitable combination of Six Sigma tools and hypothesis tests to address the following situation:\n\nA pharmaceutical manufacturing plant is experiencing significant variation in tablet weight, leading to 12% of batches failing quality specifications and potential regulatory compliance issues.",
-  "input": "",
-  "output": "In the **Define** phase, establish a *Project Charter* to formalize objectives and scope. Conduct a *Gemba Walk* to observe the tablet production process firsthand and identify obvious variation sources.\n\nFor the **Measure** phase, implement *Measurement System Analysis (MSA) - Gage R&R* to ensure weighing equipment reliability. Create a *Data Collection Plan* capturing tablet weights across shifts, operators, and batches. Use *Histograms* to visualize weight distribution patterns.\n\nIn the **Analyze** phase, apply *Fishbone Diagrams* to systematically explore potential causes (machine, material, method, environment). Conduct *Multi-Vari Analysis* to identify the primary variation sources. Use *Two-Sample t-Tests* to compare weights between shifts and *One-Way ANOVA* to test differences across multiple operators or machines.\n\nFor the **Improve** phase, implement *Design of Experiments (DOE)* to optimize critical process parameters identified in analysis. Apply *FMEA* to assess risks of proposed changes and use *Poka-Yoke* to mistake-proof the process.\n\nIn the **Control** phase, establish *Control Charts (X-bar and R charts)* for ongoing monitoring. Implement *Response Plans* for out-of-control conditions and conduct *Process Capability Studies (Cp, Cpk)* to demonstrate sustained improvement.\n\n**Final Toolset Combination:**\nDefine → Project Charter + Gemba Walk →\nMeasure → MSA/Gage R&R + Data Collection Plan + Histogram →\nAnalyze → Fishbone + Multi-Vari Analysis + Two-Sample t-Test + One-Way ANOVA →\nImprove → DOE + FMEA + Poka-Yoke →\nControl → Control Charts + Response Plan + Process Capability Study",
-  "id": 1,
-  "domain": "Pharmaceutical Manufacturing",
-  "sub_domain": "Tablet Production"
-}
-```
+**When you see requests like:**
+- "Create hypothesis testing samples"
+- "Generate statistical test selection examples"
+- "Make samples for choosing appropriate tests"
+- "Help select the right statistical method for [data scenario]"
+- "Create samples for statistical reasoning"
 
-## Quality Requirements
+#### ❓ **FAQ-Style Educational Samples**
+**Use:** `instructions/copilot-faq.instructions.md`
+
+**When you see requests like:**
+- "Create FAQ-style samples"
+- "Generate educational explanation samples"
+- "Make samples that explain LSS concepts"
+- "Tell me about [LSS tool/method]"
+- "What is [statistical test/LSS technique]"
+- "Explain how [method] works"
+
+#### 🔍 **Data Reasoning & Method Recommendation**
+**Use:** `instructions/copilot-datareasoning.instructions.md`
+
+**When you see requests like:**
+- "Create data reasoning samples"
+- "Generate method recommendation examples"
+- "I have data... what test should I use?"
+- "Here is measurement data... how to check significance?"
+- "Analyze this data scenario and recommend approach"
+- "Complex data analysis guidance samples"
+
+#### 🔄 **Mixed or Multi-Type Requests**
+**When you see requests like:**
+- "Create a mixed batch with [multiple types]"
+- "Generate samples covering various LSS topics"
+- Use multiple instruction files as appropriate, maintaining the specific guidelines for each sample type.
+
+## Quality Standards
 
 ### Sample Diversity Criteria
 
@@ -77,7 +98,9 @@ After each batch, create a summary table showing industry distribution. For this
 
 **Batch 5 Created Successfully! (IDs 81-100)**
 
-*20 new samples created to complete the first 100-sample milestone.*#### 🎉 MILESTONE ACHIEVED: 100 High-Quality LSS Training Samples!
+*20 new samples created to complete the first 100-sample milestone.*
+
+#### 🎉 MILESTONE ACHIEVED: 100 High-Quality LSS Training Samples!
 
 ##### 📊 Final Industry Distribution After Batch 5:
 
