@@ -1,4 +1,4 @@
-# 🧑‍💻📊 Curating Datasets for Fine-Tuning Language Models: Lean Six Sigma Master Black Belt Example (1.5 Hours)
+# 🧑‍💻📊 Curating Datasets for Fine-Tuning Language Models
 
 ---
 
