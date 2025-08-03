@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List, Optional, Dict
+import yaml
 
 def rename_json_keys_in_batches(
     path: str,
@@ -162,11 +163,48 @@ def delete_json_keys_in_batches(
         else:
             print(f"No deletions needed for {fpath}")
 
+def main_from_yaml(config_path: str):
+    with open(config_path, 'r', encoding='utf-8') as f:
+        config = yaml.safe_load(f)
+    cfg = config.get('update_json_samples', {})
+
+    path = cfg.get('path')
+    file_prefix = cfg.get('file_prefix')
+    batch_start = cfg.get('batch_start')
+    batch_end = cfg.get('batch_end')
+    operation = cfg.get('operation')
+    rename_dict = cfg.get('rename_dict')
+    insert_dict = cfg.get('insert_dict')
+    delete_keys = cfg.get('delete_keys')
+
+    batch_num = None
+    if batch_start is not None and batch_end is not None:
+        batch_num = list(range(batch_start, batch_end + 1))
+
+    if operation == 'update':
+        rename_json_keys_in_batches(
+            path=path,
+            file_prefix=file_prefix,
+            batch_num=batch_num,
+            rename_dict=rename_dict
+        )
+    elif operation == 'insert':
+        insert_json_keys_in_batches(
+            path=path,
+            file_prefix=file_prefix,
+            batch_num=batch_num,
+            insert_dict=insert_dict
+        )
+    elif operation == 'delete':
+        delete_json_keys_in_batches(
+            path=path,
+            file_prefix=file_prefix,
+            batch_num=batch_num,
+            delete_keys=delete_keys
+        )
+    else:
+        print(f"Unknown operation: {operation}")
+
 if __name__ == "__main__":
-    # Example usage
-    rename_json_keys_in_batches(
-        path="./datasets/lss_CoT",
-        file_prefix="lss_cot_batch",
-        batch_num=list(range(31, 66)),
-        rename_dict={"industry": "domain"}
-    )
+    # Read config from YAML and execute
+    main_from_yaml("./config.yaml")
