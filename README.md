@@ -31,6 +31,13 @@ This project focuses on creating high-quality, domain-specific datasets for trai
 - Perfect alignment with QnA dataset for comprehensive training
 - Supports both token classification and generative NER approaches
 
+### Chain-of-Thought (CoT) Sample Dataset (`lss_cot_batch*.json`)
+- **Sequential reasoning samples** for Lean Six Sigma and statistical problem-solving
+- Covers DMAIC, hypothesis testing, FAQ, data reasoning, and mixed sample types
+- Each sample includes step-by-step expert reasoning, industry context, and method selection
+- Batches available in `datasets/lss_CoT/` (e.g., `lss_cot_batch27.json` to `lss_cot_batch65.json`)
+- Used for fine-tuning models to perform advanced reasoning and decision support
+
 ### Coverage Areas
 
 #### Healthcare Operations
@@ -299,7 +306,7 @@ If you use these datasets in your research or projects, please cite:
   author={Clarence Wong},
   year={2025},
   url={https://github.com/cw18/ai-master-black-belt},
-  note={360 QnA and NER samples covering 6 major domains for business process improvement},
+  note={360 QnA and NER samples covering 6 major domains for business process improvement; includes Chain-of-Thought (CoT) reasoning batches for advanced Lean Six Sigma and statistical problem-solving},
   samples={360},
   domains={healthcare, ecommerce, manufacturing, energy_utilities, data_center_operations, supply_chain_logistics}
 }
@@ -309,6 +316,7 @@ If you use these datasets in your research or projects, please cite:
 
 - **Hugging Face QnA Dataset**: [cw18/lean-six-sigma-qna](https://huggingface.co/datasets/cw18/lean-six-sigma-qna)
 - **Hugging Face NER Dataset**: [cw18/lean-six-sigma-ner](https://huggingface.co/datasets/cw18/lean-six-sigma-ner)
+- **CoT Sample Batches**: See `datasets/lss_CoT/` in this repo
 - **Setup Guide**: [SETUP_TOKEN.md](SETUP_TOKEN.md)
 
 ## 📞 Support
