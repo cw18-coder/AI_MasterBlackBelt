@@ -1,0 +1,13 @@
+# Global configuration file for project scripts
+
+update_json_samples:
+  path: "./datasets/lss_CoT"
+  file_prefix: "lss_cot_batch"
+  batch_start: 30
+  batch_end: 65
+  rename_dict: {industry: domain}
+  operation: "delete"  # options: update, insert, delete
+  # For insert operation, add: insert_dict: {"new_key": "value"}
+  # For delete operation, add: delete_keys: ["key_to_delete"]
+  delete_keys: ["batch","sample_type"]
+  insert_dict: None
