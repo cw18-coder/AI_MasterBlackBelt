@@ -1,5 +1,12 @@
-
 # 🧑‍💻📊 Curating Datasets for Fine-Tuning Language Models: Lean Six Sigma Master Black Belt Example (1.5 Hours)
+
+---
+
+### 👨‍🏫 Presented by
+**Clarence Wong**  
+Senior Data Scientist, Microsoft
+
+---
 
 ## 📚 Course Overview
 
