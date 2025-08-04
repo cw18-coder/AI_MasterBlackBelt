@@ -34,6 +34,30 @@ def load_and_validate_dataset(file_path, dataset_type):
     
     return data
 
+def load_and_validate_cot_samples(directory):
+    """Collate and validate CoT samples from all batch files in the directory."""
+    import re
+    pattern = re.compile(r"lss_cot_batch(\d+)\.json")
+    all_samples = []
+    files = [f for f in os.listdir(directory) if pattern.match(f)]
+    print(f"Found {len(files)} CoT batch files in {directory}")
+    for fname in sorted(files):
+        fpath = os.path.join(directory, fname)
+        with open(fpath, 'r', encoding='utf-8') as f:
+            try:
+                data = json.load(f)
+                all_samples.extend(data)
+            except Exception as e:
+                print(f"Error reading {fpath}: {e}")
+    print(f"Total CoT samples loaded: {len(all_samples)}")
+    # Validate required fields
+    required_fields = ['id', 'domain', 'sub_domain', 'instruction', 'input', 'output']
+    for i, sample in enumerate(all_samples):
+        missing_fields = [field for field in required_fields if field not in sample]
+        if missing_fields:
+            print(f"Warning: CoT sample {i+1} missing fields: {missing_fields}")
+    return all_samples
+
 def create_dataset_card(dataset_type):
     """Create a comprehensive dataset card for the Hugging Face Hub"""
     
@@ -41,6 +65,8 @@ def create_dataset_card(dataset_type):
         return create_qna_dataset_card()
     elif dataset_type == 'NER':
         return create_ner_dataset_card()
+    elif dataset_type == 'CoT':
+        return create_cot_dataset_card()
 
 def create_qna_dataset_card():
     """Create dataset card for QnA dataset"""
@@ -158,7 +184,6 @@ The dataset covers comprehensive Lean Six Sigma applications across six major do
 
 ### Loading the Dataset
 
-```python
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 
@@ -259,6 +284,157 @@ If you use this dataset in your research, please cite:
   domains={healthcare, ecommerce, manufacturing, energy_utilities, data_center_operations, supply_chain_logistics}
 }
 ```
+
+## License
+
+This dataset is released under the MIT License, allowing for both commercial and non-commercial use.
+"""
+
+def create_cot_dataset_card():
+    """Create dataset card for CoT dataset."""
+    return """---
+license: mit
+task_categories:
+- text-generation
+- question-answering
+language:
+- en
+tags:
+- lean-six-sigma
+- chain-of-thought-reasoning
+- business-consulting
+- process-improvement
+- multi-domain
+- DMAIC
+- advanced-reasoning
+size_categories:
+- n<10K
+---
+
+# Lean Six Sigma Chain-of-Thought (CoT) Reasoning Dataset
+
+## Dataset Description
+
+This dataset contains high-quality Chain-of-Thought (CoT) reasoning samples for Lean Six Sigma and statistical problem-solving. Each sample includes step-by-step expert reasoning, industry context, and method selection, covering DMAIC, hypothesis testing, FAQ, data reasoning, and mixed sample types. The dataset is designed for fine-tuning language models to perform advanced Chain-of-Thought reasoning and decision support in business process improvement.
+
+## Dataset Structure
+
+### Data Fields
+- **id**: Unique identifier for each sample
+- **batch**: Batch number
+- **sample_type**: Type of sample (e.g., DMAIC, FAQ, hypothesis, data reasoning, mixed)
+- **domain**: Industry domain
+- **sub_domain**: Sub-domain within the industry
+- **instruction**: Task or question
+- **input**: Scenario or data context
+- **output**: Chain-of-Thought reasoning and answer
+
+### Data Splits
+All samples are provided as a single training split. Users may create custom splits as needed.
+
+## Industry Coverage
+
+### Target Distribution
+
+| Industry Category                   | Target % |
+|-------------------------------------|----------|
+| Manufacturing Industries            | 20.0%    |
+| Transportation & Logistics          | 20.0%    |
+| Technology & Data Center Operations | 20.0%    |
+| Financial & Professional Services   | ~7.7%    |
+| Healthcare & Life Sciences          | ~5.7%    |
+| Energy & Utilities                  | ~5.7%    |
+| Public Sector & Non-Profit          | ~5.7%    |
+| Telecommunications & Media          | ~3.8%    |
+| Retail & E-commerce                 | ~3.8%    |
+| Hospitality & Services              | ~3.8%    |
+| Construction & Infrastructure       | ~1.9%    |
+| Aerospace & Defense                 | ~1.9%    |
+
+The dataset is carefully balanced to maintain these target percentages, ensuring broad and representative coverage across all major business domains for Lean Six Sigma applications.
+
+## Usage Examples
+
+### Loading the Dataset
+
+from datasets import load_dataset
+from sklearn.model_selection import train_test_split
+
+dataset = load_dataset("your-username/lean-six-sigma-cot")['train']
+
+# Option 1: Random split
+train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
+
+# Option 2: Split by domain (ensure domain coverage in validation)
+healthcare_samples = dataset.filter(lambda x: x['domain'] == 'healthcare')
+val_data = healthcare_samples
+train_data = dataset.filter(lambda x: x['domain'] != 'healthcare')
+
+# Option 3: Use all data for training (recommended for comprehensive coverage)
+train_data = dataset
+
+### Example Training Code (Alpaca Format)
+
+def format_cot_prompt(sample):
+    instruction = sample["instruction"]
+    input_text = sample["input"]
+    reasoning = sample["output"]
+    if input_text.strip():
+        return f'''Below is an instruction that describes a task, paired with an input that provides further context. Write a step-by-step Chain-of-Thought reasoning response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Input:\n{input_text}\n\n### Chain-of-Thought Reasoning:\n{reasoning}'''
+    else:
+        return f'''Below is an instruction that describes a task. Write a step-by-step Chain-of-Thought reasoning response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Chain-of-Thought Reasoning:\n{reasoning}'''
+
+# Apply formatting
+formatted_dataset = dataset.map(lambda x: {"text": format_cot_prompt(x)})
+
+## Dataset Creation
+
+This dataset was carefully curated to provide comprehensive coverage of Lean Six Sigma methodologies and advanced Chain-of-Thought reasoning with:
+
+- **Expert-level step-by-step reasoning**: All outputs follow proper DMAIC (Define, Measure, Analyze, Improve, Control) methodology and statistical best practices
+- **Real-world scenarios**: Samples based on actual business challenges and case studies across multiple industries
+- **Practical guidance**: Responses include specific tools, techniques, and implementation strategies with explicit reasoning
+- **Multi-industry focus**: Comprehensive coverage across all major business domains
+- **Modern techniques**: Integration of AI/ML, automation, digital transformation, and advanced analytics
+- **Strategic balance**: Targeted distribution across all listed domains
+
+## Intended Use
+
+This dataset is intended for:
+
+1. **Fine-tuning instruction-following models** (3B-8B parameters) for advanced Chain-of-Thought reasoning in Lean Six Sigma consulting
+2. **Training multi-industry business process improvement assistants**
+3. **Developing domain-specific chatbots** for operational optimization and decision support
+4. **Educational applications** in business process improvement and statistical analysis
+5. **Cross-industry knowledge transfer** and best practice identification
+
+## Model Performance
+
+Recommended models for fine-tuning:
+- **Llama 3.2 3B**: Optimal for 6GB VRAM GPUs (3-4 hour training)
+- **Mistral 7B**: Excellent instruction following and reasoning (2-3 hours on T4)
+- **Qwen 2.5 7B**: Strong Chain-of-Thought capabilities (1.5-2 hours on T4)
+- **Gemma 7B**: Google's instruction-tuned model (2.5-3 hours on T4)
+
+## Limitations
+
+- Limited to 360 samples (optimized for parameter-efficient fine-tuning)
+- English language only
+- Requires domain expertise to evaluate reasoning quality across different industries
+- Focus on operational and process improvement domains
+
+## Citation
+
+If you use this dataset in your research, please cite:
+
+@dataset{lean_six_sigma_cot_2025,
+  title={Lean Six Sigma Chain-of-Thought Reasoning Dataset},
+  author={Clarence Wong},
+  year={2025},
+  url={https://huggingface.co/datasets/cw18/lean-six-sigma-cot},
+  samples={360},
+  domains={manufacturing, transportation_logistics, technology_data_center, financial_professional_services, healthcare_life_sciences, energy_utilities, public_sector_non_profit, telecommunications_media, retail_ecommerce, hospitality_services, construction_infrastructure, aerospace_defense}
+}
 
 ## License
 
@@ -543,29 +719,23 @@ This dataset is released under the MIT License, allowing for both commercial and
 def prepare_dataset_for_upload(data):
     """Convert JSON data to Hugging Face Dataset format"""
     print("Preparing dataset for upload...")
-    
-    # Convert to pandas DataFrame first for easier manipulation
     df = pd.DataFrame(data)
-    
-    # Create single train split - let users decide how to split
     print(f"Creating single train split with {len(data)} samples")
-    
-    # Create Dataset object
     train_dataset = Dataset.from_pandas(df)
-    
-    # Create DatasetDict with only train split
-    dataset_dict = DatasetDict({
-        'train': train_dataset
-    })
-    
+    dataset_dict = DatasetDict({'train': train_dataset})
     return dataset_dict
 
 def upload_to_huggingface(dataset_dict, repo_name, dataset_type, private=False):
     """Upload dataset to Hugging Face Hub"""
     print(f"Uploading {dataset_type} dataset to: {repo_name}")
-    
-    # Create dataset card
-    card_content = create_dataset_card(dataset_type)
+    if dataset_type == 'QnA':
+        card_content = create_qna_dataset_card()
+    elif dataset_type == 'NER':
+        card_content = create_ner_dataset_card()
+    elif dataset_type == 'CoT':
+        card_content = create_cot_dataset_card()
+    else:
+        card_content = ""
     
     # Set task categories based on dataset type
     if dataset_type == 'QnA':
@@ -582,6 +752,12 @@ def upload_to_huggingface(dataset_dict, repo_name, dataset_type, private=False):
                "data-center-operations", "healthcare", "e-commerce", "energy-utilities", 
                "DMAIC", "NER", "entity-extraction", "named-entity-recognition", 
                "360-samples", "multi-domain", "professional-training", "industrial-applications"]
+    elif dataset_type == 'CoT':
+        task_categories = ["text-generation", "question-answering"]
+        tags = ["lean-six-sigma", "chain-of-thought", "chain-of-thought-reasoning", "business-consulting", 
+                "process-improvement", "multi-domain", "DMAIC", "advanced-reasoning", 
+                "statistical-analysis", "decision-support", "360-samples", 
+                "professional-training", "industrial-applications"]
     
     try:
         # Push to hub (without card_data for compatibility)
@@ -619,9 +795,10 @@ def main():
     print("\n📊 Select Dataset Type:")
     print("1. QnA Dataset (Question-Answer pairs)")
     print("2. NER Dataset (Named Entity Recognition)")
+    print("3. CoT Dataset (Chain-of-Thought Reasoning Samples)")
     
     while True:
-        choice = input("\nEnter your choice (1 or 2): ").strip()
+        choice = input("\nEnter your choice (1, 2, or 3): ").strip()
         if choice == '1':
             dataset_type = 'QnA'
             dataset_path = r"c:\Users\clwong\OneDrive\Documents\Learning\AI_MasterBlackBelt\datasets\lss_consultant\sixSigma_QnA_caseStudy_sample.json"
@@ -632,11 +809,19 @@ def main():
             dataset_path = r"c:\Users\clwong\OneDrive\Documents\Learning\AI_MasterBlackBelt\datasets\lss_ner\sixSigma_NER_caseStudy_sample.json"
             default_name = "lean-six-sigma-ner"
             break
+        elif choice == '3':
+            dataset_type = 'CoT'
+            cot_dir = r"c:\Users\clwong\OneDrive\Documents\Learning\AI_MasterBlackBelt\datasets\lss_CoT"
+            default_name = "lean-six-sigma-cot"
+            break
         else:
-            print("❌ Invalid choice. Please enter 1 or 2.")
+            print("❌ Invalid choice. Please enter 1, 2, or 3.")
     
     print(f"\n✅ Selected: {dataset_type} Dataset")
-    print(f"📁 Source file: {dataset_path}")
+    if dataset_type in ['QnA', 'NER']:
+        print(f"📁 Source file: {dataset_path}")
+    elif dataset_type == 'CoT':
+        print(f"📁 Source directory: {cot_dir}")
     
     # Get user configuration
     print("\n📝 Configuration:")
@@ -653,7 +838,7 @@ def main():
         username = input("Enter your Hugging Face username: ").strip()
         if not username:
             print("❌ Username is required!")
-            return
+            exit(1)
     
     dataset_name = input(f"Enter dataset name (default: {default_name}): ").strip()
     if not dataset_name:
@@ -687,17 +872,20 @@ def main():
             print("\n💡 Tip: Create a .env file with your token:")
             print("   HUGGINGFACE_TOKEN=your_write_token_here")
         print("   Or run 'huggingface-cli login' in your terminal first.")
-        return
+        exit(1)
     
     # Load and validate dataset
     try:
-        data = load_and_validate_dataset(dataset_path, dataset_type)
+        if dataset_type in ['QnA', 'NER']:
+            data = load_and_validate_dataset(dataset_path, dataset_type)
+        elif dataset_type == 'CoT':
+            data = load_and_validate_cot_samples(cot_dir)
     except FileNotFoundError:
-        print(f"❌ Dataset file not found: {dataset_path}")
-        return
+        print(f"❌ Dataset file not found: {dataset_path if dataset_type != 'CoT' else cot_dir}")
+        exit(1)
     except Exception as e:
         print(f"❌ Error loading dataset: {e}")
-        return
+        exit(1)
     
     # Prepare dataset
     try:
@@ -705,7 +893,7 @@ def main():
         print("✅ Dataset prepared successfully!")
     except Exception as e:
         print(f"❌ Error preparing dataset: {e}")
-        return
+        exit(1)
     
     # Upload to Hugging Face
     print(f"\n📤 Uploading to Hugging Face Hub...")
@@ -715,259 +903,8 @@ def main():
         print("\n🎉 Upload completed successfully!")
         print(f"🔗 Dataset URL: https://huggingface.co/datasets/{repo_name}")
         print(f"📚 You can now use: load_dataset('{repo_name}')")
-        
-        # # Create example usage file based on dataset type
-        # if dataset_type == 'QnA':
-        #     example_code = create_qna_example_code(repo_name)
-        # elif dataset_type == 'NER':
-        #     example_code = create_ner_example_code(repo_name)
-        
-        # filename = f"example_usage_{dataset_type.lower()}.py"
-        # with open(filename, "w", encoding='utf-8') as f:
-        #     f.write(example_code)
-        
-        # print(f"📝 Created {filename} for reference")
     else:
         print("\n❌ Upload failed. Please check the error messages above.")
-
-def create_qna_example_code(repo_name):
-    """Create example usage code for QnA dataset"""
-    return f'''# Example: Loading and using your QnA dataset
-
-from datasets import load_dataset
-from sklearn.model_selection import train_test_split
-
-# Load the dataset (single train split)
-dataset = load_dataset("{repo_name}")['train']
-
-print(f"Total samples: {{len(dataset)}}")
-
-# Option 1: Use all data for training (recommended for comprehensive coverage)
-train_data = dataset
-print("Using all 360 samples for training")
-
-# Option 2: Create random validation split
-train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
-print(f"Random split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
-
-# Option 3: Split by industry domain for domain-aware validation
-unique_domains = set(dataset['sub_domain'])
-print(f"Available industries: {{sorted(unique_domains)}}")
-
-# Example: Reserve one industry for validation
-val_domain = 'healthcare'
-val_data = dataset.filter(lambda x: x['sub_domain'] == val_domain)
-train_data = dataset.filter(lambda x: x['sub_domain'] != val_domain)
-print(f"Industry split - Train: {{len(train_data)}}, Val: {{len(val_data)}} ({{val_domain}})")
-
-# Domain distribution analysis
-domain_counts = {{}}
-for sample in dataset:
-    domain = sample['sub_domain']
-    domain_counts[domain] = domain_counts.get(domain, 0) + 1
-
-print(f"\\nDomain distribution:")
-for domain, count in sorted(domain_counts.items()):
-    print(f"  {{domain}}: {{count}} samples")
-
-# Example sample
-sample = dataset[0]
-print("\\nExample sample:")
-print(f"ID: {{sample['id']}}")
-print(f"Industry: {{sample['sub_domain']}}")
-print(f"Question type: {{sample['type_of_question']}}")
-print(f"Instruction: {{sample['instruction'][:100]}}...")
-
-# Alpaca formatting function
-def format_alpaca_prompt(sample):
-    instruction = sample["instruction"]
-    input_text = sample["input"]
-    
-    if input_text.strip():
-        return f\"\"\"Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-
-### Instruction:
-{{instruction}}
-
-### Input:
-{{input_text}}
-
-### Response:
-{{sample["output"]}}\"\"\"
-    else:
-        return f\"\"\"Below is an instruction that describes a task. Write a response that appropriately completes the request.
-
-### Instruction:
-{{instruction}}
-
-### Response:
-{{sample["output"]}}\"\"\"
-
-# Apply formatting for training
-formatted_dataset = dataset.map(lambda x: {{"text": format_alpaca_prompt(x)}})
-print(f"\\nFormatted for training: {{len(formatted_dataset)}} samples")
-
-# Industry-specific training
-healthcare_samples = dataset.filter(lambda x: x['sub_domain'] == 'healthcare')
-print(f"Healthcare-specific samples: {{len(healthcare_samples)}}")
-'''
-
-def create_ner_example_code(repo_name):
-    """Create example usage code for NER dataset"""
-    return f'''# Example: Loading and using your NER dataset
-
-from datasets import load_dataset
-from sklearn.model_selection import train_test_split
-import json
-
-# Load the dataset (single train split)
-dataset = load_dataset("{repo_name}")['train']
-
-print(f"Total samples: {{len(dataset)}}")
-
-# Option 1: Use all data for training (recommended for comprehensive coverage)
-train_data = dataset
-print("Using all 360 samples for training")
-
-# Option 2: Create random validation split
-train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
-print(f"Random split - Train: {{len(train_data)}}, Val: {{len(val_data)}}")
-
-# Option 3: Split by industry domain for domain-aware validation
-unique_domains = set(dataset['sub_domain'])
-print(f"Available industries: {{sorted(unique_domains)}}")
-
-# Example: Reserve one industry for validation
-val_domain = 'healthcare'
-val_data = dataset.filter(lambda x: x['sub_domain'] == val_domain)
-train_data = dataset.filter(lambda x: x['sub_domain'] != val_domain)
-print(f"Industry split - Train: {{len(train_data)}}, Val: {{len(val_data)}} ({{val_domain}})")
-
-# Domain distribution analysis
-domain_counts = {{}}
-for sample in dataset:
-    domain = sample['sub_domain']
-    domain_counts[domain] = domain_counts.get(domain, 0) + 1
-
-print(f"\\nDomain distribution:")
-for domain, count in sorted(domain_counts.items()):
-    print(f"  {{domain}}: {{count}} samples")
-
-# Example sample
-sample = dataset[0]
-print("\\nExample sample:")
-print(f"ID: {{sample['id']}}")
-print(f"Industry: {{sample['sub_domain']}}")
-print(f"Question type: {{sample['type_of_question']}}")
-print(f"Instruction: {{sample['instruction'][:100]}}...")
-print("\\nEntities by DMAIC phase:")
-for entity, phases in sample['output'].items():
-    print(f"  {{entity}}: {{phases}}")
-
-# Entity extraction functions
-def extract_entities_by_phase(sample, target_phase):
-    \"\"\"Extract entities for a specific DMAIC phase\"\"\"
-    return [entity for entity, phases in sample['output'].items() if target_phase in phases]
-
-def get_all_entities(sample):
-    \"\"\"Get all entities from a sample\"\"\"
-    return list(sample['output'].keys())
-
-def get_all_phases(sample):
-    \"\"\"Get all DMAIC phases mentioned in a sample\"\"\"
-    phases = set()
-    for entity_phases in sample['output'].values():
-        phases.update(entity_phases)
-    return sorted(list(phases))
-
-def get_entities_by_industry(dataset, industry):
-    \"\"\"Get all entities for a specific industry\"\"\"
-    industry_entities = set()
-    for sample in dataset.filter(lambda x: x['sub_domain'] == industry):
-        industry_entities.update(sample['output'].keys())
-    return sorted(list(industry_entities))
-
-# Example usage
-define_entities = extract_entities_by_phase(sample, 'define')
-print(f"\\nDefine phase entities: {{define_entities}}")
-
-all_entities = get_all_entities(sample)
-print(f"All entities in sample: {{all_entities[:5]}}...")  # Show first 5
-
-all_phases = get_all_phases(sample)
-print(f"All DMAIC phases: {{all_phases}}")
-
-# Industry-specific entity analysis
-healthcare_entities = get_entities_by_industry(dataset, 'healthcare')
-print(f"\\nHealthcare industry entities: {{healthcare_entities[:10]}}...")  # Show first 10
-
-datacenter_entities = get_entities_by_industry(dataset, 'data_center_operations')
-print(f"Data center entities: {{datacenter_entities[:10]}}...")  # Show first 10
-
-# NER formatting function for training
-def format_ner_prompt(sample):
-    instruction = sample["instruction"]
-    input_text = sample["input"]
-    entities = sample["output"]
-    industry = sample["sub_domain"]
-    
-    # Create entity list for training
-    entity_text = "\\n".join([f"- {{entity}}: {{', '.join(phases)}}" for entity, phases in entities.items()])
-    
-    if input_text.strip():
-        return f\"\"\"Extract Lean Six Sigma entities and categorize them by DMAIC phase.
-
-### Industry Context:
-{{industry}}
-
-### Scenario:
-{{input_text}}
-
-### Question:
-{{instruction}}
-
-### Entities:
-{{entity_text}}\"\"\"
-    else:
-        return f\"\"\"Extract Lean Six Sigma entities and categorize them by DMAIC phase.
-
-### Industry Context:
-{{industry}}
-
-### Question:
-{{instruction}}
-
-### Entities:
-{{entity_text}}\"\"\"
-
-# Apply formatting for training
-formatted_dataset = dataset.map(lambda x: {{"text": format_ner_prompt(x)}})
-print(f"\\nFormatted for training: {{len(formatted_dataset)}} samples")
-
-# Statistics
-total_entities = sum(len(sample['output']) for sample in dataset)
-print(f"\\nDataset statistics:")
-print(f"Total entities across all samples: {{total_entities}}")
-print(f"Average entities per sample: {{total_entities / len(dataset):.1f}}")
-
-# Phase distribution
-phase_counts = {{}}
-for sample in dataset:
-    for entity_phases in sample['output'].values():
-        for phase in entity_phases:
-            phase_counts[phase] = phase_counts.get(phase, 0) + 1
-
-print(f"\\nEntity distribution by DMAIC phase:")
-for phase, count in sorted(phase_counts.items()):
-    print(f"  {{phase}}: {{count}} entities")
-
-# Industry-specific phase analysis
-print(f"\\nIndustry-specific entity analysis:")
-for industry in sorted(unique_domains):
-    industry_samples = dataset.filter(lambda x: x['sub_domain'] == industry)
-    industry_entity_count = sum(len(sample['output']) for sample in industry_samples)
-    print(f"  {{industry}}: {{industry_entity_count}} entities across {{len(industry_samples)}} samples")
-'''
 
 if __name__ == "__main__":
     main()
