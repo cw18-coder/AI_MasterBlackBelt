@@ -34,29 +34,50 @@ def load_and_validate_dataset(file_path, dataset_type):
     
     return data
 
-def load_and_validate_cot_samples(directory):
-    """Collate and validate CoT samples from all batch files in the directory."""
+def load_and_validate_cot_samples_from_splits(base_directory):
+    """Load and validate CoT samples from train, eval, and test splits."""
     import re
     pattern = re.compile(r"lss_cot_batch(\d+)\.json")
-    all_samples = []
-    files = [f for f in os.listdir(directory) if pattern.match(f)]
-    print(f"Found {len(files)} CoT batch files in {directory}")
-    for fname in sorted(files):
-        fpath = os.path.join(directory, fname)
-        with open(fpath, 'r', encoding='utf-8') as f:
-            try:
-                data = json.load(f)
-                all_samples.extend(data)
-            except Exception as e:
-                print(f"Error reading {fpath}: {e}")
-    print(f"Total CoT samples loaded: {len(all_samples)}")
-    # Validate required fields
+    
+    splits = {}
+    split_dirs = ['train', 'eval', 'test']
+    
+    for split in split_dirs:
+        split_path = os.path.join(base_directory, split)
+        if not os.path.exists(split_path):
+            print(f"Warning: {split} directory not found at {split_path}")
+            splits[split] = []
+            continue
+            
+        files = [f for f in os.listdir(split_path) if pattern.match(f)]
+        print(f"Found {len(files)} CoT batch files in {split} split")
+        
+        split_samples = []
+        for fname in sorted(files):
+            fpath = os.path.join(split_path, fname)
+            with open(fpath, 'r', encoding='utf-8') as f:
+                try:
+                    data = json.load(f)
+                    split_samples.extend(data)
+                except Exception as e:
+                    print(f"Error reading {fpath}: {e}")
+        
+        splits[split] = split_samples
+        print(f"Loaded {len(split_samples)} samples from {split} split")
+    
+    # Validate required fields across all splits
     required_fields = ['id', 'domain', 'sub_domain', 'instruction', 'input', 'output']
-    for i, sample in enumerate(all_samples):
-        missing_fields = [field for field in required_fields if field not in sample]
-        if missing_fields:
-            print(f"Warning: CoT sample {i+1} missing fields: {missing_fields}")
-    return all_samples
+    total_samples = 0
+    
+    for split_name, samples in splits.items():
+        for i, sample in enumerate(samples):
+            missing_fields = [field for field in required_fields if field not in sample]
+            if missing_fields:
+                print(f"Warning: {split_name} sample {i+1} missing fields: {missing_fields}")
+        total_samples += len(samples)
+    
+    print(f"Total CoT samples loaded across all splits: {total_samples}")
+    return splits
 
 def create_dataset_card(dataset_type):
     """Create a comprehensive dataset card for the Hugging Face Hub"""
@@ -308,7 +329,7 @@ tags:
 - DMAIC
 - advanced-reasoning
 size_categories:
-- n<10K
+- n<1K
 ---
 
 # Lean Six Sigma Chain-of-Thought (CoT) Reasoning Dataset
@@ -321,8 +342,6 @@ This dataset contains high-quality Chain-of-Thought (CoT) reasoning samples for 
 
 ### Data Fields
 - **id**: Unique identifier for each sample
-- **batch**: Batch number
-- **sample_type**: Type of sample (e.g., DMAIC, FAQ, hypothesis, data reasoning, mixed)
 - **domain**: Industry domain
 - **sub_domain**: Sub-domain within the industry
 - **instruction**: Task or question
@@ -330,7 +349,19 @@ This dataset contains high-quality Chain-of-Thought (CoT) reasoning samples for 
 - **output**: Chain-of-Thought reasoning and answer
 
 ### Data Splits
-All samples are provided as a single training split. Users may create custom splits as needed.
+The dataset is provided with three splits to support comprehensive training and evaluation:
+
+- **train**: Primary training split containing the majority of samples for model fine-tuning
+- **eval**: Evaluation split for hyperparameter tuning and model validation during training
+- **test**: Test split for final model evaluation and performance assessment
+
+| Split | Samples | Purpose |
+|-------|---------|---------|
+| train | ~500 | Model training and fine-tuning |
+| eval | ~40 | Validation and hyperparameter tuning |
+| test | ~60 | Final evaluation and testing |
+
+The splits maintain balanced industry distribution and sample type coverage to ensure robust evaluation across all domains and reasoning types.
 
 ## Industry Coverage
 
@@ -357,24 +388,30 @@ The dataset is carefully balanced to maintain these target percentages, ensuring
 
 ### Loading the Dataset
 
+### Loading the Dataset
+
+```python
 from datasets import load_dataset
-from sklearn.model_selection import train_test_split
 
-dataset = load_dataset("your-username/lean-six-sigma-cot")['train']
+# Load all splits
+dataset = load_dataset("your-username/lean-six-sigma-cot")
 
-# Option 1: Random split
-train_data, val_data = train_test_split(dataset, test_size=0.2, random_state=42)
+# Access individual splits
+train_data = dataset['train']
+eval_data = dataset['eval'] 
+test_data = dataset['test']
 
-# Option 2: Split by domain (ensure domain coverage in validation)
-healthcare_samples = dataset.filter(lambda x: x['domain'] == 'healthcare')
-val_data = healthcare_samples
-train_data = dataset.filter(lambda x: x['domain'] != 'healthcare')
+print(f"Train samples: {len(train_data)}")
+print(f"Eval samples: {len(eval_data)}")
+print(f"Test samples: {len(test_data)}")
 
-# Option 3: Use all data for training (recommended for comprehensive coverage)
-train_data = dataset
+# Use the pre-defined splits for training
+# No need to manually split - use as-is for robust evaluation
+```
 
 ### Example Training Code (Alpaca Format)
 
+```python
 def format_cot_prompt(sample):
     instruction = sample["instruction"]
     input_text = sample["input"]
@@ -384,8 +421,11 @@ def format_cot_prompt(sample):
     else:
         return f'''Below is an instruction that describes a task. Write a step-by-step Chain-of-Thought reasoning response that appropriately completes the request.\n\n### Instruction:\n{instruction}\n\n### Chain-of-Thought Reasoning:\n{reasoning}'''
 
-# Apply formatting
-formatted_dataset = dataset.map(lambda x: {"text": format_cot_prompt(x)})
+# Apply formatting to all splits
+train_formatted = train_data.map(lambda x: {"text": format_cot_prompt(x)})
+eval_formatted = eval_data.map(lambda x: {"text": format_cot_prompt(x)})
+test_formatted = test_data.map(lambda x: {"text": format_cot_prompt(x)})
+```
 
 ## Dataset Creation
 
@@ -418,7 +458,7 @@ Recommended models for fine-tuning:
 
 ## Limitations
 
-- Limited to 360 samples (optimized for parameter-efficient fine-tuning)
+- Limited to ~600 samples total across all splits (optimized for parameter-efficient fine-tuning)
 - English language only
 - Requires domain expertise to evaluate reasoning quality across different industries
 - Focus on operational and process improvement domains
@@ -427,14 +467,17 @@ Recommended models for fine-tuning:
 
 If you use this dataset in your research, please cite:
 
+```
 @dataset{lean_six_sigma_cot_2025,
   title={Lean Six Sigma Chain-of-Thought Reasoning Dataset},
   author={Clarence Wong},
   year={2025},
   url={https://huggingface.co/datasets/cw18/lean-six-sigma-cot},
-  samples={360},
+  samples={600},
+  splits={train, eval, test},
   domains={manufacturing, transportation_logistics, technology_data_center, financial_professional_services, healthcare_life_sciences, energy_utilities, public_sector_non_profit, telecommunications_media, retail_ecommerce, hospitality_services, construction_infrastructure, aerospace_defense}
 }
+```
 
 ## License
 
@@ -716,14 +759,26 @@ If you use this dataset in your research, please cite:
 This dataset is released under the MIT License, allowing for both commercial and non-commercial use.
 """
 
-def prepare_dataset_for_upload(data):
+def prepare_dataset_for_upload(data_or_splits, is_splits=False):
     """Convert JSON data to Hugging Face Dataset format"""
     print("Preparing dataset for upload...")
-    df = pd.DataFrame(data)
-    print(f"Creating single train split with {len(data)} samples")
-    train_dataset = Dataset.from_pandas(df)
-    dataset_dict = DatasetDict({'train': train_dataset})
-    return dataset_dict
+    
+    if is_splits:
+        # Handle split data (CoT dataset)
+        dataset_dict = {}
+        for split_name, samples in data_or_splits.items():
+            if samples:  # Only create split if it has samples
+                df = pd.DataFrame(samples)
+                dataset_dict[split_name] = Dataset.from_pandas(df)
+                print(f"Created {split_name} split with {len(samples)} samples")
+        return DatasetDict(dataset_dict)
+    else:
+        # Handle single dataset (QnA or NER)
+        df = pd.DataFrame(data_or_splits)
+        print(f"Creating single train split with {len(data_or_splits)} samples")
+        train_dataset = Dataset.from_pandas(df)
+        dataset_dict = DatasetDict({'train': train_dataset})
+        return dataset_dict
 
 def upload_to_huggingface(dataset_dict, repo_name, dataset_type, private=False):
     """Upload dataset to Hugging Face Hub"""
@@ -756,7 +811,7 @@ def upload_to_huggingface(dataset_dict, repo_name, dataset_type, private=False):
         task_categories = ["text-generation", "question-answering"]
         tags = ["lean-six-sigma", "chain-of-thought", "chain-of-thought-reasoning", "business-consulting", 
                 "process-improvement", "multi-domain", "DMAIC", "advanced-reasoning", 
-                "statistical-analysis", "decision-support", "360-samples", 
+                "statistical-analysis", "decision-support", "600-samples", "train-eval-test-splits",
                 "professional-training", "industrial-applications"]
     
     try:
@@ -878,8 +933,10 @@ def main():
     try:
         if dataset_type in ['QnA', 'NER']:
             data = load_and_validate_dataset(dataset_path, dataset_type)
+            is_splits = False
         elif dataset_type == 'CoT':
-            data = load_and_validate_cot_samples(cot_dir)
+            data = load_and_validate_cot_samples_from_splits(cot_dir)
+            is_splits = True
     except FileNotFoundError:
         print(f"❌ Dataset file not found: {dataset_path if dataset_type != 'CoT' else cot_dir}")
         exit(1)
@@ -889,7 +946,7 @@ def main():
     
     # Prepare dataset
     try:
-        dataset_dict = prepare_dataset_for_upload(data)
+        dataset_dict = prepare_dataset_for_upload(data, is_splits)
         print("✅ Dataset prepared successfully!")
     except Exception as e:
         print(f"❌ Error preparing dataset: {e}")
